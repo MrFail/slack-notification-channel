@@ -5,6 +5,7 @@ namespace Illuminate\Notifications\Slack;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
+use Illuminate\Notifications\Slack\BlockKit\Blocks\AttachmentsBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ContextBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\DividerBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\HeaderBlock;
@@ -29,6 +30,12 @@ class SlackMessage implements Arrayable
      */
     protected ?string $text = null;
 
+    /**
+     * The message's attachments.
+     *
+     * @var \Illuminate\Notifications\Slack\Contracts\BlockContract[]
+     */
+    protected array $attachments = [];
     /**
      * The message's blocks.
      *
@@ -97,6 +104,18 @@ class SlackMessage implements Arrayable
     public function text(string $text): self
     {
         $this->text = $text;
+
+        return $this;
+    }
+
+    /**
+     * Add a new Actions block to the message.
+     */
+    public function attachmentsBlock(Closure $callback): self
+    {
+        $this->attachments[] = $attachment = new AttachmentsBlock();
+
+        $callback($attachment);
 
         return $this;
     }
@@ -284,6 +303,9 @@ class SlackMessage implements Arrayable
         $optionalFields = array_filter([
             'text' => $this->text,
             'blocks' => ! empty($this->blocks) ? array_map(fn (BlockContract $block) => $block->toArray(), $this->blocks) : null,
+            'attachments' => ! empty($this->attachments)
+                ? array_map(fn (BlockContract $attachment) => $attachment->toArray(), $this->attachments)
+                : null,
             'icon_emoji' => $this->icon,
             'icon_url' => $this->image,
             'metadata' => $this->metaData?->toArray(),
