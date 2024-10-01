@@ -9,7 +9,7 @@ use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
 use LogicException;
 
-class AttachmentsBlock implements BlockContract
+class AttachmentBlock implements BlockContract
 {
     use Conditionable;
     /**
@@ -42,11 +42,7 @@ class AttachmentsBlock implements BlockContract
      */
     public ?string $color = '#f2c744';
 
-    public array $blocks = [];
-    /**
-     * The attachment's fields.
-     */
-    public array $fields;
+    public $blocks;
 
     /**
      * The fields containing markdown.
@@ -160,7 +156,7 @@ class AttachmentsBlock implements BlockContract
      */
     public function blocks(Closure $callback): self
     {
-        $this->blocks[] = $block = new Block;
+        $this->blocks = $block = new Block;
 
         $callback($block);
 
@@ -263,11 +259,9 @@ class AttachmentsBlock implements BlockContract
             throw new InvalidArgumentException('Maximum length for the block_id field is 255 characters.');
         }
 
-        if (empty($this->fields) && empty($this->blocks)) {
+        if (empty($this->blocks)) {
             throw new LogicException('There must be at least one element in each actions block.');
         }
-
-        $body = (!empty($this->fields) && !empty($this->blocks) || empty($this->fields)) ? 'blocks' : 'fields';
 
         $optionalFields = array_filter([
             'block_id' => $this->blockId,
@@ -283,10 +277,10 @@ class AttachmentsBlock implements BlockContract
             'pretext' => $this->pretext,
             'ts' => $this->timestamp,
             'actions' => $this->actions,
-        ]);
+        ], fn ($value) => !empty($value));
 
         return array_merge([
-            $body => array_map(fn (Arrayable $element) => $element->toArray(), $this->$body),
+            'blocks' => $this->blocks->toArray(),
         ], $optionalFields);
     }
 }
