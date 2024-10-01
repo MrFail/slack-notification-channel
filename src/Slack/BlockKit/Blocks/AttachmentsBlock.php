@@ -4,9 +4,7 @@ namespace Illuminate\Notifications\Slack\BlockKit\Blocks;
 
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Notifications\Slack\BlockKit\Composites\FieldObject;
 use Illuminate\Notifications\Slack\Contracts\BlockContract;
-use Illuminate\Notifications\Slack\SlackMessage;
 use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
 use LogicException;
@@ -160,11 +158,11 @@ class AttachmentsBlock implements BlockContract
     /**
      * Add a field to the attachment.
      */
-    public function block(Closure $callback): self
+    public function blocks(Closure $callback): self
     {
-        $this->blocks[] = $message = new SlackMessage();
+        $this->blocks[] = $block = new Block;
 
-        $callback($message);
+        $callback($block);
 
         return $this;
     }
@@ -185,16 +183,6 @@ class AttachmentsBlock implements BlockContract
     public function image(string $url): self
     {
         $this->imageUrl = $url;
-
-        return $this;
-    }
-
-    /**
-     * Set the URL to the attachment thumbnail.
-     */
-    public function thumb(string $url): self
-    {
-        $this->thumbUrl = $url;
 
         return $this;
     }
