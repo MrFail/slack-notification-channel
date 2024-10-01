@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Notifications\Slack\BlockKit\Blocks;
+namespace Illuminate\Notifications\Slack\BlockKit\Blocks\Attachment;
 
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
@@ -11,7 +11,7 @@ use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
 use LogicException;
 
-class AttachmentsBlock implements BlockContract
+class AttachmentBlock implements BlockContract
 {
     use Conditionable;
     /**
