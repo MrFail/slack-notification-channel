@@ -5,7 +5,7 @@ namespace Illuminate\Notifications\Slack;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
-use Illuminate\Notifications\Slack\BlockKit\Blocks\AttachmentsBlock;
+use Illuminate\Notifications\Slack\BlockKit\Blocks\AttachmentBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ContextBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\DividerBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\HeaderBlock;
@@ -111,9 +111,9 @@ class SlackMessage implements Arrayable
     /**
      * Add a new Actions block to the message.
      */
-    public function attachmentsBlock(Closure $callback): self
+    public function attachmentBlock(Closure $callback): self
     {
-        $this->attachments[] = $attachment = new AttachmentsBlock();
+        $this->attachments[] = $attachment = new AttachmentBlock();
 
         $callback($attachment);
 
