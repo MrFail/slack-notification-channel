@@ -4,43 +4,43 @@ namespace Illuminate\Notifications\Slack\BlockKit\Blocks;
 
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Notifications\Slack\BlockKit\Composites\FieldObject;
 use Illuminate\Notifications\Slack\Contracts\BlockContract;
-use Illuminate\Notifications\Slack\SlackMessage;
+use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
 use LogicException;
 
 class AttachmentsBlock implements BlockContract
 {
+    use Conditionable;
     /**
      * The attachment's title.
      */
-    public string $title;
+    public ?string $title = null;
 
     /**
      * The attachment's URL.
      */
-    public string $url;
+    public ?string $url = null;
 
     /**
      * The attachment's pretext.
      */
-    public string $pretext;
+    public ?string $pretext = null;
 
     /**
      * The attachment's text content.
      */
-    public string $content;
+    public ?string $content = null;
 
     /**
      * A plain-text summary of the attachment.
      */
-    public string $fallback;
+    public ?string $fallback = null;
 
     /**
      * The attachment's color.
      */
-    public string $color;
+    public ?string $color = '#f2c744';
 
     public array $blocks = [];
     /**
@@ -56,12 +56,12 @@ class AttachmentsBlock implements BlockContract
     /**
      * The attachment's image url.
      */
-    public string $imageUrl;
+    public ?string $imageUrl = null;
 
     /**
      * The attachment's thumb url.
      */
-    public string $thumbUrl;
+    public ?string $thumbUrl = null;
 
     /**
      * The attachment's actions.
@@ -71,38 +71,38 @@ class AttachmentsBlock implements BlockContract
     /**
      * The attachment author's name.
      */
-    public string $authorName;
+    public ?string $authorName = null;
 
     /**
      * The attachment author's link.
      */
-    public string $authorLink;
+    public ?string $authorLink = null;
 
     /**
      * The attachment author's icon.
      */
-    public string $authorIcon;
+    public ?string $authorIcon = null;
 
     /**
      * The attachment's footer.
      */
-    public string $footer;
+    public ?string $footer = null;
 
     /**
      * The attachment's footer icon.
      */
-    public string $footerIcon;
+    public ?string $footerIcon = null;
 
     /**
      * The attachment's timestamp.
      */
-    public int $timestamp;
+    public ?int $timestamp = null;
 
     /**
      * The attachment's callback ID.
      */
-    public int $callbackId;
-    protected string $blockId;
+    public ?int $callbackId = null;
+    protected ?string $blockId = null;
 
     /**
      * Set the title of the attachment.
@@ -158,41 +158,11 @@ class AttachmentsBlock implements BlockContract
     /**
      * Add a field to the attachment.
      */
-    public function block(Closure $callback): self
+    public function blocks(Closure $callback): self
     {
-        $this->blocks[] = $message = new SlackMessage();
+        $this->blocks[] = $block = new Block;
 
-        $callback($message);
-
-        return $this;
-    }
-
-    /**
-     * Add a field to the attachment.
-     */
-    public function field(Closure|string $title, string $content = ''): self
-    {
-        if (is_callable($title)) {
-            $callback = $title;
-
-            $callback($attachmentField = new FieldObject);
-
-            $this->fields[] = $attachmentField;
-
-            return $this;
-        }
-
-        $this->fields[$title] = $content;
-
-        return $this;
-    }
-
-    /**
-     * Set the fields of the attachment.
-     */
-    public function fields(array $fields): self
-    {
-        $this->fields = $fields;
+        $callback($block);
 
         return $this;
     }
@@ -213,16 +183,6 @@ class AttachmentsBlock implements BlockContract
     public function image(string $url): self
     {
         $this->imageUrl = $url;
-
-        return $this;
-    }
-
-    /**
-     * Set the URL to the attachment thumbnail.
-     */
-    public function thumb(string $url): self
-    {
-        $this->thumbUrl = $url;
 
         return $this;
     }
@@ -311,9 +271,6 @@ class AttachmentsBlock implements BlockContract
 
         $optionalFields = array_filter([
             'block_id' => $this->blockId,
-        ]);
-
-        return array_merge([
             'author_name' => $this->authorName,
             'author_link' => $this->authorLink,
             'color' => $this->color,
@@ -326,6 +283,9 @@ class AttachmentsBlock implements BlockContract
             'pretext' => $this->pretext,
             'ts' => $this->timestamp,
             'actions' => $this->actions,
+        ]);
+
+        return array_merge([
             $body => array_map(fn (Arrayable $element) => $element->toArray(), $this->$body),
         ], $optionalFields);
     }
