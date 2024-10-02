@@ -42,7 +42,7 @@ class AttachmentBlock implements BlockContract
      */
     public ?string $color = '#f2c744';
 
-    public $blocks;
+    public array $fields;
 
     /**
      * The fields containing markdown.
@@ -152,13 +152,54 @@ class AttachmentBlock implements BlockContract
     }
 
     /**
+     * Set the color of the attachment.
+     */
+    public function success(): self
+    {
+        $this->color = '#28a745';
+
+        return $this;
+    }
+
+    /**
+     * Set the color of the attachment.
+     */
+    public function warning(): self
+    {
+        $this->color = '#ffc107';
+
+        return $this;
+    }
+
+
+    /**
+     * Set the color of the attachment.
+     */
+    public function info(): self
+    {
+        $this->color = '#17a2b8';
+
+        return $this;
+    }
+
+    /**
+     * Set the color of the attachment.
+     */
+    public function error(): self
+    {
+        $this->color = '#dc3545';
+
+        return $this;
+    }
+
+    /**
      * Add a field to the attachment.
      */
-    public function blocks(Closure $callback): self
+    public function fields(Closure $callback): self
     {
-        $this->blocks = $block = new Block;
+        $this->fields[] = $field = new FieldBlock;
 
-        $callback($block);
+        $callback($field);
 
         return $this;
     }
@@ -259,8 +300,8 @@ class AttachmentBlock implements BlockContract
             throw new InvalidArgumentException('Maximum length for the block_id field is 255 characters.');
         }
 
-        if (empty($this->blocks)) {
-            throw new LogicException('There must be at least one element in each actions block.');
+        if (!empty($this->fields) && count($this->fields) > 25) {
+            throw new LogicException('Maximum limit of fields are 25.');
         }
 
         $optionalFields = array_filter([
@@ -280,7 +321,7 @@ class AttachmentBlock implements BlockContract
         ], fn ($value) => !empty($value));
 
         return array_merge([
-            'blocks' => $this->blocks->toArray(),
+            'fields' => array_map(fn (Arrayable $field) => $field->toArray(), $this->fields),
         ], $optionalFields);
     }
 }
