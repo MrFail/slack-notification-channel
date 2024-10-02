@@ -42,7 +42,7 @@ class AttachmentBlock implements BlockContract
      */
     public ?string $color = '#f2c744';
 
-    public array $fields;
+    public array $fields = [];
 
     /**
      * The fields containing markdown.
@@ -188,6 +188,20 @@ class AttachmentBlock implements BlockContract
     public function error(): self
     {
         $this->color = '#dc3545';
+
+        return $this;
+    }
+
+    /**
+     * Add a field to the attachment.
+     */
+    public function field( $title, $content, $long = false): self
+    {
+        $field = new FieldBlock();
+
+        $field->title($title)->content($content)->when($long, fn(FieldBlock $field) => $field->long());
+
+        $this->fields[] =  $field;
 
         return $this;
     }
