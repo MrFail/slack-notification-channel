@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\AttachmentBlock;
+use Illuminate\Notifications\Slack\BlockKit\Blocks\AttachmentField;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ContextBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\DividerBlock;
 use Illuminate\Notifications\Slack\BlockKit\Blocks\HeaderBlock;
@@ -111,7 +112,19 @@ class SlackMessage implements Arrayable
     /**
      * Add a new Actions block to the message.
      */
-    public function attachmentBlock(Closure $callback): self
+    public function attachmentWithFields(Closure $callback): self
+    {
+        $this->attachments[] = $attachment = new AttachmentField();
+
+        $callback($attachment);
+
+        return $this;
+    }
+
+    /**
+     * Add a new Actions block to the message.
+     */
+    public function attachmentWithBlocks(Closure $callback): self
     {
         $this->attachments[] = $attachment = new AttachmentBlock();
 
@@ -258,7 +271,7 @@ class SlackMessage implements Arrayable
     }
 
     /**
-     * Set the user name for the Slack bot.
+     * Set the username for the Slack bot.
      */
     public function username(string $username): self
     {
@@ -322,11 +335,6 @@ class SlackMessage implements Arrayable
         ], $optionalFields);
     }
 
-    /**
-     * Dump the payload as a URL to the Slack Block Kit Builder.
-     *
-     * @return void
-     */
     public function dd(bool $raw = false)
     {
         if ($raw) {
