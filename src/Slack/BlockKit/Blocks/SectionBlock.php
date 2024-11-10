@@ -6,11 +6,13 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Notifications\Slack\BlockKit\Composites\TextObject;
 use Illuminate\Notifications\Slack\Contracts\BlockContract;
 use Illuminate\Notifications\Slack\Contracts\ElementContract;
+use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
 use LogicException;
 
 class SectionBlock implements BlockContract
 {
+    use Conditionable;
     /**
      * A string acting as a unique identifier for a block.
      *
@@ -73,6 +75,23 @@ class SectionBlock implements BlockContract
         $this->fields[] = $field = new TextObject($text, 2000, 1);
 
         return $field;
+    }
+
+    /**
+     * Add a field to the block.
+     */
+    public function customField(string $key, $value, $separator = ':', $inline= true, $markdown = true)
+    {
+        $new_line = !$inline ? '\n' : '';
+        $field = new TextObject("*{$key}{$separator}*{$new_line} {$value}", 2000, 1);
+
+        if($markdown) {
+            $field->markdown();
+        }
+
+        $this->fields[] = $field;
+
+        return $this;
     }
 
     /**
